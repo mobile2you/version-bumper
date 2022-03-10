@@ -1,6 +1,46 @@
 #!/bin/bash
 set -ex
 
+echo "Update variable value: $updateSpmModules"
+echo "Condition value: $($updateSpmModules = "true")"
+
+if [ $updateSpmModules == "true" ]
+
+    then
+
+    # Identify `Package.resolved` location
+    RESOLVED_PATH=$(find . -type f -name "Package.resolved" | grep -v "*/*.xcodeproj/*")
+    CHECKSUM=$(shasum "$RESOLVED_PATH")
+
+    echo "$(date +"%T") Identified Package.resolved at '$RESOLVED_PATH'."
+
+    echo "$(date +"%T") Deleting Package.resolved to force it to be regenerated under new format."
+    rm -rf "$RESOLVED_PATH" 2> /dev/null
+
+    # Cleanup Caches
+    DERIVED_DATA=$(xcodebuild -showBuildSettings -disableAutomaticPackageResolution | grep -m 1 BUILD_DIR | grep -oE "\/.*" | sed 's|/Build/Products||')
+    SPM_CACHE="/Users/fernandom2y//Library/Caches/org.swift.swiftpm/"
+
+    rm -rf "$DERIVED_DATA"
+    rm -rf "$CACHE_PATH"
+
+    # Resolve Dependencies
+    echo "$(date +"%T") Resolving package dependencies"
+    xcodebuild -resolvePackageDependencies
+
+    # Determine Changes
+    NEWCHECKSUM=$(shasum "$RESOLVED_PATH")
+
+    if [ "$CHECKSUM" != "$NEWCHECKSUM" ]; then
+        echo "$(date +"%T") Script end! Dependencies changed!"
+    else
+        echo "$(date +"%T") Script end! Dependencies did not change!"
+    fi
+
+else
+        echo "Oh noooo. No update!"
+fi
+
 function validate_build_version {
   local version=$1
   local SEMVER_REGEX="^([0-9]*)\\.([0-9]*)\\.([0-9]*)$"

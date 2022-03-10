@@ -33,35 +33,43 @@ inputs:
   - target: ""
     opts:
       title: "Target Name"
-      summary: Target version to be updated
+      summary: "Target version to be updated."
       is_required: true
+  - updateSpmModules: "false"
+    opts:
+      title: "Update SPM Modules"
+      summary: "Should be set to true if there are any Swift Package Modules that need to be updated."
+      is_required: true
+      value_options:
+      - "true"
+      - "false"
   - majorIncreaseValue: "0"
     opts:
       title: "Major Increase Value"
-      summary: Major value to be increased.
+      summary: "Major value to be increased."
       is_required: true
   - minorIncreaseValue: "0"
     opts:
       title: "Minor Increase Value"
-      summary: Minor value to be increased.
+      summary: "Minor value to be increased."
       is_required: true
   - patchIncreaseValue: "1"
     opts:
       title: "Patch Increase Value"
-      summary: Patch value to be increased.
+      summary: "Patch value to be increased."
       is_required: true
   - buildIncreaseValue: "0"
     opts:
       title: "Build Increase Value"
-      summary: Build value to be increased.
+      summary: "Build value to be increased."
       is_required: true
   - buildTriggerTag: ""
     opts:
       title: "Build trigger tag"
-      summary: The tag that will be used to trigger the build. Eg., -dev, -hml1, -prod.
+      summary: "The tag that will be used to trigger the build. Eg., -dev, -hml1, -prod."
       is_required: true
   - versionBumpIssue: ""
     opts:
       title: "Version bump issue"
-      summary: The Jira issue used for build commits.
+      summary: "The Jira issue used for build commits."
       is_required: true
