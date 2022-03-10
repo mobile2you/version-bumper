@@ -1,22 +1,88 @@
 #!/bin/bash
 set -ex
 
-echo "This is the value specified for the input 'example_step_input': ${example_step_input}"
+function validate_build_version {
+  local version=$1
+  local SEMVER_REGEX="^([0-9]*)\\.([0-9]*)\\.([0-9]*)$"
+  if [[ "$version" =~ $SEMVER_REGEX ]]; then
+    # if a second argument is passed, store the result in var named by $2
+    if [ "$#" -eq "2" ]; then
+      local major=${BASH_REMATCH[1]}
+      local minor=${BASH_REMATCH[2]}
+      local patch=${BASH_REMATCH[3]}
+      eval "$2=(\"${major#0}\" \"${minor#0}\" \"${patch#0}\")"
+    else
+      echo "$version"
+    fi
+  else
+    error "version $version does not match the scheme 'X.Y.Z'. See help for more information."
+  fi
+}
 
-#
-# --- Export Environment Variables for other Steps:
-# You can export Environment Variables for other Steps with
-#  envman, which is automatically installed by `bitrise setup`.
-# A very simple example:
-envman add --key EXAMPLE_STEP_OUTPUT --value 'the value you want to share'
-# Envman can handle piped inputs, which is useful if the text you want to
-# share is complex and you don't want to deal with proper bash escaping:
-#  cat file_with_complex_input | envman add --KEY EXAMPLE_STEP_OUTPUT
-# You can find more usage examples on envman's GitHub page
-#  at: https://github.com/bitrise-io/envman
+function validate_compilation_version {
+  local version=$1
+  local SEMVER_REGEX="^([0-9]{2})([0-9]{2})([0-9]{3})([0-9]{2})$"
+  if [[ "$version" =~ $SEMVER_REGEX ]]; then
+    # if a second argument is passed, store the result in var named by $2
+    if [ "$#" -eq "2" ]; then
+      local major=${BASH_REMATCH[1]}
+      local minor=${BASH_REMATCH[2]}
+      local patch=${BASH_REMATCH[3]}
+      local build=${BASH_REMATCH[4]}
+      eval "$2=(\"${major#0}\" \"${minor#0}\" \"${patch#0}\" \"${build#0}\")"
+    else
+      echo "$version"
+    fi
+  else
+    error "version $version does not match the scheme 'X.Y.Z'. See help for more information."
+  fi
+}
 
-#
-# --- Exit codes:
-# The exit code of your Step is very important. If you return
-#  with a 0 exit code `bitrise` will register your Step as "successful".
-# Any non zero exit code will be registered as "failed" by `bitrise`.
+buildNumber=$(xcodebuild -target $target -showBuildSettings | grep MARKETING_VERSION | tr -d 'MARKETING_VERSION =')
+compilationNumber=$(xcodebuild -target $target -showBuildSettings | grep CURRENT_PROJECT_VERSION | tr -d 'CURRENT_PROJECT_VERSION =')
+
+echo "Build Number: $buildNumber"
+echo "Compilation Number: $compilationNumber"
+
+validate_build_version $buildNumber parsedBuildVersion
+
+buildMajor="${parsedBuildVersion[0]}"
+buildMinor="${parsedBuildVersion[1]}"
+buildPatch="${parsedBuildVersion[2]}"
+
+echo "Major: $buildMajor / Minor: $buildMinor / Patch: $buildPatch"
+
+validate_compilation_version $compilationNumber parsedCompilationVersion
+
+compilationMajor="${parsedCompilationVersion[0]}"
+compilationMinor="${parsedCompilationVersion[1]}"
+compilationPatch="${parsedCompilationVersion[2]}"
+compilationBuild="${parsedCompilationVersion[3]}"
+
+echo "Major: $compilationMajor / Minor: $compilationMinor / Patch: $compilationPatch / Build: $compilationBuild"
+
+newBuildMajor=$((${buildMajor#0} + majorIncreaseValue))
+newBuildMinor=$((${buildMinor#0} + minorIncreaseValue))
+newBuildPatch=$((${buildPatch#0} + patchIncreaseValue))
+
+newBuildNumber="$newBuildMajor.$newBuildMinor.$newBuildPatch"
+echo "newBuildNumber: $newBuildNumber"
+
+newCompilationMajor=$(printf "%02d" $((${compilationMajor#0} + majorIncreaseValue)))
+newCompilationMinor=$(printf "%02d" $((${compilationMinor#0} + minorIncreaseValue)))
+newCompilationPatch=$(printf "%03d" $((${compilationPatch#0} + patchIncreaseValue)))
+newCompilationBuild=$(printf "%02d" $((${compilationBuild#0} + buildIncreaseValue)))
+
+newCompilationNumber="$newCompilationMajor$newCompilationMinor$newCompilationPatch$newCompilationBuild"
+echo "newCompilationNumber: $newCompilationNumber"
+
+sed -i "" "s/MARKETING_VERSION = $buildNumber/MARKETING_VERSION = $newBuildNumber/g" Mobile2You.xcodeproj/project.pbxproj
+sed -i "" "s/CURRENT_PROJECT_VERSION = $compilationNumber/CURRENT_PROJECT_VERSION = $newCompilationNumber/g" Mobile2You.xcodeproj/project.pbxproj
+
+git checkout -b release/${newBuildNumber}${buildTriggerTag}
+git add --all
+git commit -m "chore($buildTriggerTag): (Version bump $newBuildNumber)"
+git tag "$newBuildNumber$buildTriggerTag"
+git push --tag $version_tag --set-upstream origin release/${newBuildNumber}${buildTriggerTag}
+
+exit 0

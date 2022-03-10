@@ -7,8 +7,8 @@ app:
   - A_SECRET_PARAM: $A_SECRET_PARAM
   # If you want to share this step into a StepLib
   - BITRISE_STEP_ID: mobile2you-ios-version-bumper
-  - BITRISE_STEP_VERSION: "0.0.1"
-  - BITRISE_STEP_GIT_CLONE_URL: git@bitbucket.org:m2y/ios-version-bumper-bitrise.git.git
+  - BITRISE_STEP_VERSION: "0.0.2"
+  - BITRISE_STEP_GIT_CLONE_URL: https://bitbucket.org/m2y/ios-version-bumper-bitrise/
   - MY_STEPLIB_REPO_FORK_GIT_URL: $MY_STEPLIB_REPO_FORK_GIT_URL
 
 workflows:

@@ -1,12 +1,3 @@
-#
-# A couple of useful guides & docs:
-#
-# - Main Bitrise CLI docs: https://github.com/bitrise-io/bitrise/tree/master/_docs
-# - Step Development Guideline: https://github.com/bitrise-io/bitrise/blob/master/_docs/step-development-guideline.md
-# - Bitrise.yml format spec: https://github.com/bitrise-io/bitrise/blob/master/_docs/bitrise-yml-format-spec.md
-# - Bitrise docs: http://devcenter.bitrise.io/
-# - Bitrise CLI guides: http://devcenter.bitrise.io/bitrise-cli/
-
 title: |-
   Mobile2you iOS Version Bumper
 summary: |
@@ -20,31 +11,10 @@ host_os_tags:
   - osx-10.10
   - ubuntu-16.04
 
-# If this step should be available only for certain project types
-# just uncomment this `project_type_tags` section and include all the
-# project types supported by the step. If the step can be used for all
-# project types then you can just remove this section.
-# If no `project_type_tags` specified (or specified as an empty array)
-# that means the step can be used for any project type.
-# You can find more information about project type tags in the Step Development Guideline:
-# https://github.com/bitrise-io/bitrise/blob/master/_docs/step-development-guideline.md
-#
-# project_type_tags:
-#   - ios
-#   - macos
-#   - android
-#   - xamarin
-#   - react-native
-#   - cordova
-#   - ionic
-
-# Type tags are used for categorizing steps, for easier step discovery in Step Libraries.
-# You can find more information about type tags in the Step Development Guideline:
-# https://github.com/bitrise-io/bitrise/blob/master/_docs/step-development-guideline.md
 type_tags:
   - utility
 
-is_requires_admin_user: true
+is_requires_admin_user: false
 is_always_run: false
 is_skippable: false
 run_if: ""
@@ -52,36 +22,46 @@ run_if: ""
 deps:
   brew:
   - name: git
-  - name: wget
   apt_get:
   - name: git
-  - name: wget
-
 
 toolkit:
   bash:
     entry_file: step.sh
 
-
 inputs:
-  - example_step_input: Default Value - you can leave this empty if you want to
+  - target: ""
     opts:
-      title: "Example Step Input"
-      summary: Summary. No more than 2-3 sentences.
-      description: |
-        Description of this input.
-
-        Can be Markdown formatted text.
-      is_expand: true
+      title: "Target Name"
+      summary: Target version to be updated
       is_required: true
-      value_options: []
-
-outputs:
-  - EXAMPLE_STEP_OUTPUT:
+  - majorIncreaseValue: "0"
     opts:
-      title: "Example Step Output"
-      summary: Summary. No more than 2-3 sentences.
-      description: |
-        Description of this output.
-
-        Can be Markdown formatted text.
+      title: "Major Increase Value"
+      summary: Major value to be increased.
+      is_required: true
+  - minorIncreaseValue: "0"
+    opts:
+      title: "Minor Increase Value"
+      summary: Minor value to be increased.
+      is_required: true
+  - patchIncreaseValue: "1"
+    opts:
+      title: "Patch Increase Value"
+      summary: Patch value to be increased.
+      is_required: true
+  - buildIncreaseValue: "0"
+    opts:
+      title: "Build Increase Value"
+      summary: Build value to be increased.
+      is_required: true
+  - buildTriggerTag: ""
+    opts:
+      title: "Build trigger tag"
+      summary: The tag that will be used to trigger the build. Eg., -dev, -hml1, -prod.
+      is_required: true
+  - buildTriggerTag: ""
+    opts:
+      title: "Version bump issue"
+      summary: The Jira issue used for build commits.
+      is_required: true
