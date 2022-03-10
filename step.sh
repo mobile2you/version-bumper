@@ -81,7 +81,7 @@ sed -i "" "s/CURRENT_PROJECT_VERSION = $compilationNumber/CURRENT_PROJECT_VERSIO
 
 git checkout -b release/${newBuildNumber}${buildTriggerTag}
 git add --all
-git commit -m "chore($buildTriggerTag): (Version bump $newBuildNumber)"
+git commit -m "chore($versionBumpIssue): (Version bump $newBuildNumber)"
 git tag "$newBuildNumber$buildTriggerTag"
 git push --tag $version_tag --set-upstream origin release/${newBuildNumber}${buildTriggerTag}
 

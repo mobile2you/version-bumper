@@ -60,7 +60,7 @@ inputs:
       title: "Build trigger tag"
       summary: The tag that will be used to trigger the build. Eg., -dev, -hml1, -prod.
       is_required: true
-  - buildTriggerTag: ""
+  - versionBumpIssue: ""
     opts:
       title: "Version bump issue"
       summary: The Jira issue used for build commits.
