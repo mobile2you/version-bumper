@@ -125,4 +125,9 @@ git commit -m "chore($versionBumpIssue): (Version bump $newBuildNumber)"
 git tag "$newBuildNumber$buildTriggerTag"
 git push --tag $version_tag --set-upstream origin release/${newBuildNumber}${buildTriggerTag}
 
+echo "creating PR!"
+    pr_id=$(curl https://api.bitbucket.org/2.0/repositories/m2y/$repository/pullrequests?fields=id   -u $bitbucketUser:$bitbucketPassword   --request POST   --header 'Content-Type: application/json'   --data '{    "title": "This PR was created by a script",    "description": "This PR was created by a script",    "destination": {      "branch": {        "name": "'"$destinationBranch"'"      }    },    "source": {      "branch": {        "name": "'"release/${newBuildNumber}${buildTriggerTag}"'"      }    }  }' | jq -r '.id')
+echo "$pr_id"
+
+
 exit 0
