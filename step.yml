@@ -94,3 +94,8 @@ inputs:
       title: "Repository name"
       summary: "The project repository name"
       is_required: true
+  - prDescription: ""
+    opts:
+      title: "Description of pull request"
+      summary: "Write the description for the pull request that will be opened"
+      is_required: true
