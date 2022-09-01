@@ -73,29 +73,18 @@ inputs:
       title: "Version bump issue"
       summary: "The Jira issue used for build commits."
       is_required: true
-      
-  - destinationBranch: ""
+  - destinationBranch: "master"
     opts:
       title: "Destination Branch Name"
-      summary: "The branch name to create pull request"
+      summary: "The branch name to create pull request."
       is_required: true
   - bitbucketUser: ""
     opts:
       title: "The bitbucket user name"
-      summary: "User name to create pull request"
+      summary: "User name to create pull request."
       is_required: true
   - bitbucketPassword: ""
     opts:
       title: "The bitbucket app password"
-      summary: "App password to create pull request"
-      is_required: true
-  - repository: ""
-    opts:
-      title: "Repository name"
-      summary: "The project repository name"
-      is_required: true
-  - prDescription: ""
-    opts:
-      title: "Description of pull request"
-      summary: "Write the description for the pull request that will be opened"
+      summary: "App password to create pull request."
       is_required: true
