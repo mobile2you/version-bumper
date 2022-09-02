@@ -119,10 +119,51 @@ echo "newCompilationNumber: $newCompilationNumber"
 sed -i "" "s/MARKETING_VERSION = $buildNumber/MARKETING_VERSION = $newBuildNumber/g" Mobile2You.xcodeproj/project.pbxproj
 sed -i "" "s/CURRENT_PROJECT_VERSION = $compilationNumber/CURRENT_PROJECT_VERSION = $newCompilationNumber/g" Mobile2You.xcodeproj/project.pbxproj
 
-git checkout -b release/${newBuildNumber}${buildTriggerTag}
+sourceBranch="release/$newBuildNumber$buildTriggerTag"
+repositoryName=$(basename -s .git `git config --get remote.origin.url`)
+
+git checkout -b ${sourceBranch}
 git add --all
 git commit -m "chore($versionBumpIssue): (Version bump $newBuildNumber)"
 git tag "$newBuildNumber$buildTriggerTag"
 git push --tag $version_tag --set-upstream origin release/${newBuildNumber}${buildTriggerTag}
+
+echo "CREATING PULL REQUEST..."
+
+ios_reviewers=$(curl -s https://api.bitbucket.org/1.0/groups/m2y/ios/members/ \
+    -u $bitbucketUser:$bitbucketPassword \
+    --header 'Content-Type: application/json')
+
+reviewers=$(echo $ios_reviewers | jq '. | map({"uuid": .uuid, "displayName": .display_name})')
+
+data=$(jq -n \
+    --argjson ios "$reviewers" \
+    --arg db "$destinationBranch" \
+    --arg sb "$sourceBranch" \
+    --arg repo "[$target] Versão $newBuildNumber$buildTriggerTag" \
+    --arg desc "[$versionBumpIssue] Versão gerada automaticamente pelo Bitrise." \
+    '{
+        "title": $repo,
+        "description": $desc,
+        "destination": {
+            "branch": {
+                "name": $db
+            }
+        },
+        "source": {
+            "branch": {
+                "name": $sb
+            }
+        },
+        "reviewers": $ios,
+        "close_source_branch": true
+    }')
+
+curl -i -v "https://api.bitbucket.org/2.0/repositories/m2y/$repositoryName/pullrequests/" \
+    -u $bitbucketUser:$bitbucketPassword \
+    --header 'Content-Type: application/json' \
+    --data "$data"
+
+echo "PULL REQUEST CREATED $pr_id"
 
 exit 0
