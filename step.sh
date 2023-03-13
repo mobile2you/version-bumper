@@ -19,7 +19,7 @@ if [ $updateSpmModules == "true" ]
 
     # Cleanup Caches
     DERIVED_DATA=$(xcodebuild -showBuildSettings -disableAutomaticPackageResolution | grep -m 1 BUILD_DIR | grep -oE "\/.*" | sed 's|/Build/Products||')
-    SPM_CACHE="/Users/fernandom2y//Library/Caches/org.swift.swiftpm/"
+    SPM_CACHE="~/Library/Caches/org.swift.swiftpm/"
 
     rm -rf "$DERIVED_DATA"
     rm -rf "$CACHE_PATH"
@@ -43,14 +43,14 @@ fi
 
 function validate_build_version {
   local version=$1
-  local SEMVER_REGEX="^([0-9]*)\\.([0-9]*)\\.([0-9]*)$"
+  local SEMVER_REGEX="^([0-9]*)\.([0-9]*)\.([0-9]*)$"
   if [[ "$version" =~ $SEMVER_REGEX ]]; then
     # if a second argument is passed, store the result in var named by $2
     if [ "$#" -eq "2" ]; then
       local major=${BASH_REMATCH[1]}
       local minor=${BASH_REMATCH[2]}
       local patch=${BASH_REMATCH[3]}
-      eval "$2=(\"${major#0}\" \"${minor#0}\" \"${patch#0}\")"
+      eval "$2=(\"${major}\" \"${minor}\" \"${patch}\")"
     else
       echo "$version"
     fi
@@ -69,7 +69,7 @@ function validate_compilation_version {
       local minor=${BASH_REMATCH[2]}
       local patch=${BASH_REMATCH[3]}
       local build=${BASH_REMATCH[4]}
-      eval "$2=(\"${major#0}\" \"${minor#0}\" \"${patch#0}\" \"${build#0}\")"
+      eval "$2=(\"${major}\" \"${minor}\" \"${patch}\" \"${build}\")"
     else
       echo "$version"
     fi
@@ -101,17 +101,63 @@ compilationBuild="${parsedCompilationVersion[3]}"
 
 echo "Major: $compilationMajor / Minor: $compilationMinor / Patch: $compilationPatch / Build: $compilationBuild"
 
-newBuildMajor=$((${buildMajor#0} + majorIncreaseValue))
-newBuildMinor=$((${buildMinor#0} + minorIncreaseValue))
-newBuildPatch=$((${buildPatch#0} + patchIncreaseValue))
+if [ "$buildType" = "Increase Major Number" ]; then
+  newBuildMajor=$(( ${buildMajor} + 1 ))
+  newBuildMinor=0
+  newBuildPatch=0
+  
+  newCompilationMajor=$( printf "%02d" $((  10#$compilationMajor + 1  )))
+  newCompilationMinor="00"
+  newCompilationPatch="000"
+  newCompilationBuild="00"
+fi
+
+if [ "$buildType" = "Increase Minor Number" ]; then
+  newBuildMajor=$buildMajor
+  newBuildMinor=$(( ${buildMinor} + 1 ))
+  newBuildPatch=0
+  
+  newCompilationMajor=$compilationMajor
+  newCompilationMinor=$( printf "%02d" $((  10#$compilationMinor + 1  )))
+  newCompilationPatch="000"
+  newCompilationBuild="00"
+fi
+
+if [ "$buildType" = "Increase Patch Number" ]; then
+  newBuildMajor=$buildMajor
+  newBuildMinor=$buildMinor
+  newBuildPatch=$(( ${buildPatch} + 1 ))
+  
+  newCompilationMajor=$compilationMajor
+  newCompilationMinor=$compilationMinor
+  newCompilationPatch=$( printf "%03d" $((  10#$compilationPatch + 1  )))
+  newCompilationBuild="00"
+fi
+
+if [ "$buildType" = "Increase Build Number" ]; then
+  newBuildMajor=$buildMajor
+  newBuildMinor=$buildMinor
+  newBuildPatch=$buildPatch
+  
+  newCompilationMajor=$compilationMajor
+  newCompilationMinor=$compilationMinor
+  newCompilationPatch=$compilationPatch
+  newCompilationBuild=$( printf "%02d" $((  10#$compilationBuild + 1  )))
+fi
+
+if [ "$buildType" = "Custom Build Number" ]; then
+  newBuildMajor=$majorCustomValue
+  newBuildMinor=$minorCustomValue
+  newBuildPatch=$patchCustomValue
+  
+  newCompilationMajor=$( printf "%02d" $(( ${majorCustomValue} )) )
+  newCompilationMinor=$( printf "%02d" $(( ${minorCustomValue} )) )
+  newCompilationPatch=$( printf "%03d" $(( ${patchCustomValue} )) )
+  newCompilationBuild=$( printf "%02d" $(( ${buildCustomValue} )) )
+fi
 
 newBuildNumber="$newBuildMajor.$newBuildMinor.$newBuildPatch"
 echo "newBuildNumber: $newBuildNumber"
-
-newCompilationMajor=$(printf "%02d" $((${compilationMajor#0} + majorIncreaseValue)))
-newCompilationMinor=$(printf "%02d" $((${compilationMinor#0} + minorIncreaseValue)))
-newCompilationPatch=$(printf "%03d" $((${compilationPatch#0} + patchIncreaseValue)))
-newCompilationBuild=$(printf "%02d" $((${compilationBuild#0} + buildIncreaseValue)))
 
 newCompilationNumber="$newCompilationMajor$newCompilationMinor$newCompilationPatch$newCompilationBuild"
 echo "newCompilationNumber: $newCompilationNumber"

@@ -43,25 +43,36 @@ inputs:
       value_options:
       - "true"
       - "false"
-  - majorIncreaseValue: "0"
+  - buildType: "Increase Patch Number"
     opts:
-      title: "Major Increase Value"
-      summary: "Major value to be increased."
+      title: "Build Type"
+      summary: "Select how to increase the version number of your build."
       is_required: true
-  - minorIncreaseValue: "0"
+      value_options:
+      - "Increase Major Number"
+      - "Increase Minor Number"
+      - "Increase Patch Number"
+      - "Increase Build Number"
+      - "Custom Build Number"
+  - majorCustomValue: "0"
     opts:
-      title: "Minor Increase Value"
-      summary: "Minor value to be increased."
+      title: "Custom Major Number"
+      summary: "This will be the new major value (if running with buildType == 'Custom Build Number')."
       is_required: true
-  - patchIncreaseValue: "1"
+  - minorCustomValue: "0"
     opts:
-      title: "Patch Increase Value"
-      summary: "Patch value to be increased."
+      title: "Custom Minor Number"
+      summary: "This will be the new minor value (if running with buildType == 'Custom Build Number')."
       is_required: true
-  - buildIncreaseValue: "0"
+  - patchCustomValue: "0"
     opts:
-      title: "Build Increase Value"
-      summary: "Build value to be increased."
+      title: "Custom Patch Number"
+      summary: "This will be the new patch value (if running with buildType == 'Custom Build Number')."
+      is_required: true
+  - buildCustomValue: "0"
+    opts:
+      title: "Custom Build Number"
+      summary: "This will be the new build value (if running with buildType == 'Custom Build Number')."
       is_required: true
   - buildTriggerTag: ""
     opts:
