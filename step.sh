@@ -78,8 +78,8 @@ function validate_compilation_version {
   fi
 }
 
-buildNumber=$(xcodebuild -target $target -showBuildSettings | grep MARKETING_VERSION | tr -d 'MARKETING_VERSION =')
-compilationNumber=$(xcodebuild -target $target -showBuildSettings | grep CURRENT_PROJECT_VERSION | tr -d 'CURRENT_PROJECT_VERSION =')
+buildNumber=$(xcodebuild -target "$target" -showBuildSettings | grep MARKETING_VERSION | tr -d 'MARKETING_VERSION =')
+compilationNumber=$(xcodebuild -target "$target" -showBuildSettings | grep CURRENT_PROJECT_VERSION | tr -d 'CURRENT_PROJECT_VERSION =')
 
 echo "Build Number: $buildNumber"
 echo "Compilation Number: $compilationNumber"
