@@ -9,7 +9,7 @@ if [ $updateSpmModules == "true" ]
     then
 
     # Identify `Package.resolved` location
-    RESOLVED_PATH=$(find . -type f -name "Package.resolved" | grep -v "*/*.xcodeproj/*")
+    RESOLVED_PATH="$BITRISE_SOURCE_DIR/Mobile2you.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
     CHECKSUM=$(shasum "$RESOLVED_PATH")
 
     echo "$(date +"%T") Identified Package.resolved at '$RESOLVED_PATH'."
